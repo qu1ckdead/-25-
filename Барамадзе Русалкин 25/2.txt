@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+
+public class Score
+{
+    private Dictionary<string, int> scores;
+
+    public Score()
+    {
+        scores = new Dictionary<string, int>();
+    }
+
+    public int this[string subject]
+    {
+        get
+        {
+            if (scores.ContainsKey(subject))
+                return scores[subject];
+            return 0;
+        }
+        set
+        {
+            scores[subject] = value;
+        }
+    }
+
+    public override string ToString()
+    {
+        var standardSubjects = new List<string> { "Математика", "Русский", "Физика" };
+        List<string> result = new List<string>();
+
+        foreach (var subject in standardSubjects)
+        {
+            result.Add($"{subject}: {this[subject]}");
+        }
+
+        return string.Join(", ", result);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var s = new Score();
+        s["Математика"] = 5;
+        s["Русский"] = 4;
+
+        Console.WriteLine(s["Математика"]);
+        Console.WriteLine(s);
+    }
+}

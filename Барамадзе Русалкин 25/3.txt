@@ -1,0 +1,61 @@
+
+using System;
+
+public class Money
+{
+    public int Rubles { get; set; }
+    public int Kopeks { get; set; }
+
+    public Money(int rubles, int kopeks)
+    {
+        Rubles = rubles;
+        Kopeks = kopeks;
+        Normalize();
+    }
+
+    private void Normalize()
+    {
+        if (Kopeks = 100)
+        {
+            Rubles += Kopeks  100;
+            Kopeks %= 100;
+        }
+    }
+
+    public static Money operator +(Money m1, Money m2)
+    {
+        return new Money(m1.Rubles + m2.Rubles, m1.Kopeks + m2.Kopeks);
+    }
+
+    public static bool operator ==(Money m1, Money m2)
+    {
+        return m1.Rubles == m2.Rubles && m1.Kopeks == m2.Kopeks;
+    }
+
+    public static bool operator !=(Money m1, Money m2)
+    {
+        return !(m1 == m2);
+    }
+
+    public override string ToString()
+    {
+        return ${Rubles} руб {Kopeks} коп;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Money money && this == money;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var m1 = new Money(10, 50);
+        var m2 = new Money(5, 75);
+
+        Console.WriteLine(m1 + m2);
+        Console.WriteLine(m1 == new Money(10, 50));
+    }
+}
