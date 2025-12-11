@@ -1,0 +1,116 @@
+using System;
+
+public class NotEnoughMoneyException : Exception
+{
+    public decimal Balance { get; }
+    public decimal Required { get; }
+
+    public NotEnoughMoneyException(decimal balance, decimal required)
+        : base($"Недостаточно средств! Баланс: {balance}, нужно: {required}")
+    {
+        Balance = balance;
+        Required = required;
+    }
+}
+
+public class WrongPinException : Exception
+{
+    public int AttemptsLeft { get; }
+
+    public WrongPinException(int attemptsLeft)
+        : base($"Неверный PIN! Осталось попыток: {attemptsLeft}")
+    {
+        AttemptsLeft = attemptsLeft;
+    }
+}
+
+public class CardBlockedException : Exception
+{
+    public CardBlockedException() : base("Карта заблокирована!") { }
+}
+
+public class ATM
+{
+    private decimal _balance;
+    private const int CorrectPin = 1234;
+    private int _pinAttempts;
+
+    public ATM(decimal initialBalance)
+    {
+        _balance = initialBalance;
+        _pinAttempts = 3;
+    }
+
+    public void Withdraw(decimal amount)
+    {
+        if (amount > _balance)
+        {
+            throw new NotEnoughMoneyException(_balance, amount);
+        }
+        _balance -= amount;
+        Console.WriteLine($"Снято: {amount}. Новый баланс: {_balance}");
+    }
+
+    public void EnterPin(int pin)
+    {
+        if (_pinAttempts <= 0)
+        {
+            throw new CardBlockedException();
+        }
+
+        if (pin != CorrectPin)
+        {
+            _pinAttempts--;
+
+            if (_pinAttempts > 0)
+            {
+                throw new WrongPinException(_pinAttempts);
+            }
+            else
+            {
+                throw new CardBlockedException();
+            }
+        }
+
+        _pinAttempts = 3;
+        Console.WriteLine("PIN верный!");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        ATM atm = new ATM(500);
+        Console.WriteLine($"Баланс: {500}");
+
+        try
+        {
+            Console.WriteLine("Снимаем 1000.");
+            atm.Withdraw(1000);
+        }
+        catch (NotEnoughMoneyException ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+
+        int[] pins = { 0000, 1111, 9999 };
+        foreach (var pin in pins)
+        {
+            try
+            {
+                Console.WriteLine($"\nВвод PIN: {pin:D4}");
+                atm.EnterPin(pin);
+            }
+            catch (WrongPinException ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+            catch (CardBlockedException ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+                break;
+            }
+        }
+    }
+}
