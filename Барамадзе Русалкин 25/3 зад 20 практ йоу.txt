@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+
+public class LoginAlreadyExistsException : Exception
+{
+    public LoginAlreadyExistsException(string login) : base($"Логин {login} уже занят!") { }
+}
+
+public class WeakPasswordException : Exception
+{
+    public WeakPasswordException() : base($"Слабый пароль! Минимум 6 символов") { }
+}
+
+public class UserService
+{
+    private HashSet<string> registeredLogins = new HashSet<string> { "userl" };
+
+    public void Register(string login, string password)
+    {
+        Console.WriteLine($"Регистрация: {login}, {password}");
+
+        if (password.Length < 6)
+            throw new WeakPasswordException();
+
+        if (registeredLogins.Contains(login))
+            throw new LoginAlreadyExistsException(login);
+
+        registeredLogins.Add(login);
+        Console.WriteLine($"Успешно!");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        var service = new UserService();
+
+        try { service.Register("admin", "123"); }
+        catch (Exception ex) { Console.WriteLine($"Ошибка: {ex.Message}"); }
+
+        Console.WriteLine();
+
+        try { service.Register("userl", "secret123"); }
+        catch (Exception ex) { Console.WriteLine($"Ошибка: {ex.Message}"); }
+    }
+}
